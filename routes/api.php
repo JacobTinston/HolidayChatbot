@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChatBot;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,4 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::group(['middleware' => ['web']], function () {
+    Route::prefix('/')->group(function () {
+        Route::get('/conversation', [ChatBot::class, 'begin'])->name('chat.begin');
+        Route::post('/conversation', [ChatBot::class, 'reply'])->name('chat.reply');
+    });
 });
