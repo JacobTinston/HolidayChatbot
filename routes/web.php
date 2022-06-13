@@ -14,4 +14,6 @@ use App\Http\Controllers\ChatBot;
 |
 */
 
-Route::get('/', [ChatBot::class, 'index']);
+Route::get('/', function () {
+    return view('home');
+});

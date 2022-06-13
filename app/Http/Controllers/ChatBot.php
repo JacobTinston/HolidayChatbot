@@ -7,26 +7,6 @@ use Session;
 
 class ChatBot extends Controller
 {
-    public function __construct()
-    {
-        $this->is_started = false;
-        $this->config = [
-            "started" => $this->is_started
-        ];
-    }
-
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function handle(Request $request = null)
-    {
-        if (!$this->is_started) {
-            $this->begin();
-        }
-    }
-
     /**
      * Display a listing of the resource.
      *
@@ -34,63 +14,7 @@ class ChatBot extends Controller
      */
     public function index(Request $request = null)
     {
-        if ($request)
-        {
-            $name = $request->session()->get('name');
-            dump($name);
-        }
-
-        return view('home', [
-            "started" => $this->is_started,
-            "replies" => [
-                [
-                    "sender" => 'bot',
-                    "message" => 'Hi There'.(isset($name) ? ' '.$name : '').'!'
-                ], 
-                [
-                    "sender" => 'user',
-                    "message" => 'Hi.'
-                ]
-            ]
-        ]);
-    }
-
-    /**
-     * Begin Conversation.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function begin()
-    {
-        $this->is_started = true;
-        return $this->index();
-    }
-
-    /**
-     * End Conversation.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function end()
-    {
-        $this->is_started = false;
-        return $this->index();
-    }
-
-    /**
-     * Update Conversation.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function reply(Request $request)
-    {
-        if (!$this->is_started)
-        {
-            $this->is_started = true;
-        }
-
-        $request->session()->put('name', $request->name);
-        return $this->index($request);
+        //
     }
 
     /**
@@ -143,9 +67,9 @@ class ChatBot extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id = null)
     {
-        //
+        return 'worked';
     }
 
     /**
