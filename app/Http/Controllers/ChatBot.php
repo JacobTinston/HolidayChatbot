@@ -3,20 +3,12 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\Yaml\Yaml;
 use Session;
 
 class ChatBot extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function index(Request $request = null)
-    {
-        //
-    }
-
     /**
      * Show the form for creating a new resource.
      *
@@ -44,9 +36,22 @@ class ChatBot extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Request $request)
     {
-        //
+        $holiday_data = Yaml::parse(Storage::disk('local')->get('database/holiday-data.yaml'));
+        $suggested_destinations = [];
+
+        foreach($holiday_data as $destination)
+        {
+            $temp_rating = strtolower($request->temp);
+            $location = strtolower($request->location);
+            $category = strtolower($request->category);
+
+            if ($destination["TempRating"] == $temp_rating && $destination["Location"] == $location && $destination["Category"] == $category)
+                array_push($suggested_destinations, $destination);
+        }
+
+        return $suggested_destinations;
     }
 
     /**
@@ -69,7 +74,7 @@ class ChatBot extends Controller
      */
     public function update(Request $request, $id = null)
     {
-        return 'worked';
+        //
     }
 
     /**

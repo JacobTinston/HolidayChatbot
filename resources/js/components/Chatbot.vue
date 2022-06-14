@@ -4,7 +4,7 @@
             <div class="messages">
                 <div v-for="reply in conversation">
                     <div v-if="reply[0] == 'bot'" class="bot">
-                        <p>{{ reply[1] }}</p>
+                        <p v-html="reply[1]"></p>
                     </div>
 
                     <div v-if="reply[0] == 'user'" class="user">
@@ -20,7 +20,7 @@
         </div>
 
         <button @click="startChat()" v-if="!is_started">Start Chat</button>
-        <button @click="stopChat()" v-if="is_started">Stop Chat</button>
+        <button @click="stopChat()" v-if="is_started">Reset Chat</button>
     </div>
 </template>
 
@@ -47,9 +47,9 @@
                     `Hello ${this.name}! Are you looking for a Hot, Mild or Cold destination?`, // 1
 
                     `Nice choice! ${this.preferred["temp"]} is my favourite too! What about location?
-                    City, Sea, or Mountain?`,
+                    City, Sea, or Mountain?`, // 2
 
-                    `Great. So are you planning on being lazy or active whilst away?`
+                    `Great. So are you planning on being lazy or active whilst away?` //3
                 ];
             }
         },
@@ -70,7 +70,9 @@
                 this.preferred = {
                     "temp": null,
                     "location": null,
+                    "category": null
                 };
+                this.startChat();
             },
 
             pushBot(index, reply = null) {
@@ -86,7 +88,7 @@
             },
 
             sanitise(string) {
-                string = string.trim();
+                string = string.replace(/[^a-z0-9áéíóúñü \,_-]/gim,"").trim();
 
                 return string;
             },
@@ -101,7 +103,9 @@
 
                 this.pushUser(reply);
 
-                if (this.checkReply(reply)) {
+                if (this.checkReply(reply) == 'end') {
+                    this.checkDestinations();
+                } else if (this.checkReply(reply)) {
                     this.current_question++;
 
                     this.pushBot(this.current_question);
@@ -135,13 +139,27 @@
                     case 2: 
                         switch(lower_reply) {
                             case 'city':
-                                this.preferred["location"] = 'city';
+                                this.preferred["location"] = 'City';
                                 break;
                             case 'sea':
-                                this.preferred["location"] = 'sea';
+                                this.preferred["location"] = 'Sea';
                                 break;
                             case 'mountain':
-                                this.preferred["location"] = 'mountain';
+                                this.preferred["location"] = 'Mountain';
+                                break;
+                            default: 
+                                is_expected = false;
+                        }
+                        break;
+                    case 3: 
+                        switch(lower_reply) {
+                            case 'lazy':
+                                is_expected = 'end';
+                                this.preferred["category"] = 'Lazy';
+                                break;
+                            case 'active':
+                                is_expected = 'end';
+                                this.preferred["category"] = 'Active';
                                 break;
                             default: 
                                 is_expected = false;
@@ -152,6 +170,32 @@
                 }
 
                 return is_expected;
+            },
+
+            async checkDestinations () {
+                if (this.preferred) {
+                    let timeout = 500;
+
+                    let suggested_destinations = await axios.post("/api/show", this.preferred).then(response => {
+                        return response.data;
+                    });
+
+                    if (suggested_destinations.length) {
+                        this.pushBot(null, `That\'s everything! Here is ${suggested_destinations.length} destinations we found that we think you might like:`);
+                    } else {
+                        this.pushBot(null, "Unfortunately we couldn't find a suitable destination. Please try narrowing your results.");
+                    }
+
+                    suggested_destinations.forEach(destination => {
+                        this.pushBot(null, `
+                            Country: ${destination["Country"]} <br>
+                            City: ${destination["City"]} <br>
+                            Hotel Name: ${destination["HotelName"]} <br>
+                            Price/Night: £${destination["PricePerPerNight"]} <br>
+                            <a href="/">Book Here Now!</a>
+                        `);
+                    });
+                }
             }
         }
     }

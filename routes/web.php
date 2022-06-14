@@ -17,3 +17,5 @@ use App\Http\Controllers\ChatBot;
 Route::get('/', function () {
     return view('home');
 });
+
+// Route::get('/', [ChatBot::class, 'show']);
