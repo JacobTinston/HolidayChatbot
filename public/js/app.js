@@ -5393,6 +5393,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
@@ -5412,7 +5413,7 @@ __webpack_require__.r(__webpack_exports__);
       this.is_started = true;
 
       if (this.current_question == 0) {
-        this.conversation.push(this.questions[0]);
+        this.pushBot(0);
       }
     },
     stopChat: function stopChat() {
@@ -5421,15 +5422,23 @@ __webpack_require__.r(__webpack_exports__);
       this.current_question = 0;
       this.conversation = [];
     },
+    pushBot: function pushBot(index) {
+      this.conversation.push(['bot', this.questions[index]]);
+    },
+    pushUser: function pushUser(reply) {
+      this.conversation.push(['user', reply]);
+    },
     updateChat: function updateChat(event) {
       var reply = event.target.elements.message.value;
+      event.target.elements.message.value = '';
 
       if (this.current_question == 0) {
         this.name = reply;
       }
 
+      this.pushUser(reply);
       this.current_question++;
-      this.conversation.push(this.questions[this.current_question]);
+      this.pushBot(this.current_question);
     }
   }
 });
@@ -28044,73 +28053,78 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "container" }, [
-    _c("div", { staticClass: "row justify-content-center" }, [
-      _c("div", { staticClass: "col-md-8" }, [
-        _c("div", { staticClass: "card" }, [
-          !_vm.is_started
-            ? _c(
-                "button",
-                {
-                  on: {
-                    click: function ($event) {
-                      return _vm.startChat()
-                    },
-                  },
-                },
-                [_vm._v("Start Chat")]
-              )
-            : _vm._e(),
-          _vm._v(" "),
-          _vm.is_started
-            ? _c(
-                "div",
-                [
-                  _vm._l(_vm.conversation, function (reply) {
-                    return _c("div", [
-                      _c("p", { domProps: { innerHTML: _vm._s(reply) } }),
+  return _c("div", { staticClass: "inner" }, [
+    _vm.is_started
+      ? _c("div", [
+          _c(
+            "div",
+            { staticClass: "messages" },
+            _vm._l(_vm.conversation, function (reply) {
+              return _c("div", [
+                reply[0] == "bot"
+                  ? _c("div", { staticClass: "bot" }, [
+                      _c("p", { domProps: { innerHTML: _vm._s(reply[1]) } }),
                     ])
-                  }),
-                  _vm._v(" "),
-                  _c(
-                    "form",
-                    {
-                      on: {
-                        submit: function ($event) {
-                          $event.preventDefault()
-                          return _vm.updateChat.apply(null, arguments)
-                        },
-                      },
-                    },
-                    [
-                      _c("input", {
-                        attrs: { type: "text", name: "message", required: "" },
-                      }),
-                      _vm._v(" "),
-                      _c("button", { attrs: { type: "submit" } }, [
-                        _vm._v("Send"),
-                      ]),
-                    ]
-                  ),
-                  _vm._v(" "),
-                  _c(
-                    "button",
-                    {
-                      on: {
-                        click: function ($event) {
-                          return _vm.stopChat()
-                        },
-                      },
-                    },
-                    [_vm._v("Stop Chat")]
-                  ),
-                ],
-                2
-              )
-            : _vm._e(),
-        ]),
-      ]),
-    ]),
+                  : _vm._e(),
+                _vm._v(" "),
+                reply[0] == "user"
+                  ? _c("div", { staticClass: "user" }, [
+                      _c("p", { domProps: { innerHTML: _vm._s(reply[1]) } }),
+                    ])
+                  : _vm._e(),
+              ])
+            }),
+            0
+          ),
+          _vm._v(" "),
+          _c(
+            "form",
+            {
+              on: {
+                submit: function ($event) {
+                  $event.preventDefault()
+                  return _vm.updateChat.apply(null, arguments)
+                },
+              },
+            },
+            [
+              _c("input", {
+                attrs: { type: "text", name: "message", required: "" },
+              }),
+              _vm._v(" "),
+              _c("button", { attrs: { type: "submit" } }, [_vm._v("Send")]),
+            ]
+          ),
+        ])
+      : _vm._e(),
+    _vm._v(" "),
+    !_vm.is_started
+      ? _c(
+          "button",
+          {
+            on: {
+              click: function ($event) {
+                return _vm.startChat()
+              },
+            },
+          },
+          [_vm._v("Start Chat")]
+        )
+      : _vm._e(),
+    _vm._v(" "),
+    _vm.is_started
+      ? _c(
+          "button",
+          {
+            on: {
+              click: function ($event) {
+                return _vm.stopChat()
+              },
+            },
+          },
+          [_vm._v("Stop Chat")]
+        )
+      : _vm._e(),
   ])
 }
 var staticRenderFns = []

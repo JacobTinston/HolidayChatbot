@@ -6,3 +6,95 @@
 
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
+
+.min-h-100 {
+    min-height: 100vh !important;
+}
+
+.center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#app {
+    width: 100%;
+    height: 100vh;
+    max-height: 675px;
+    max-width: 375px;
+    border-radius: 30px;
+    position: relative;
+}
+
+.screen {
+    position: absolute;
+    position: relative;
+    width: 90%;
+    height: 85%;
+    top: 5%;
+    left: 5%;
+}
+
+.screen .inner > button {
+    position: absolute;
+    bottom: -8.5%;
+    margin: 0;
+    margin-left: 50%;
+    transform: translateX(-50%);
+}
+
+.screen .inner > div {
+    overflow: hidden;
+}
+
+.messages {
+    padding: 25px 10px;
+    padding-bottom: 40px;
+    width: 100%;
+    height: 100%;
+    overflow: scroll;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.messages .bot {
+    width: 60%;
+    background-color: #39ff5a;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+}
+
+.messages .user {
+    width: 60%;
+    background-color: #218aff;
+    padding: 5px;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    position: relative;
+    left: 40%;
+}
+
+// .messages p {
+//     color: #fff;
+// }
+
+form {
+    position: absolute;
+    display: flex;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+}
+
+form button {
+    width: 20%;
+    height: 50px;
+}
+
+input {
+    width: 80%;
+    height: 50px;
+    padding: 10px 15px;
+}

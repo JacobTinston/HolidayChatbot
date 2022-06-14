@@ -1,25 +1,26 @@
 <template>
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card">
-                    <button @click="startChat()" v-if="!is_started">Start Chat</button>
+    <div class="inner">
+        <div v-if="is_started">
+            <div class="messages">
+                <div v-for="reply in conversation">
+                    <div v-if="reply[0] == 'bot'" class="bot">
+                        <p v-html="reply[1]"></p>
+                    </div>
 
-                    <div v-if="is_started">
-                        <div v-for="reply in conversation">
-                            <p v-html="reply"></p>
-                        </div>
-
-                        <form @submit.prevent="updateChat">
-                            <input type="text" name="message" required>
-                            <button type="submit">Send</button>
-                        </form>
-
-                        <button @click="stopChat()">Stop Chat</button>
+                    <div v-if="reply[0] == 'user'" class="user">
+                        <p v-html="reply[1]"></p>
                     </div>
                 </div>
             </div>
+
+            <form @submit.prevent="updateChat">
+                <input type="text" name="message" required>
+                <button type="submit">Send</button>
+            </form>
         </div>
+
+        <button @click="startChat()" v-if="!is_started">Start Chat</button>
+        <button @click="stopChat()" v-if="is_started">Stop Chat</button>
     </div>
 </template>
 
@@ -44,7 +45,7 @@
             startChat() {
                 this.is_started = true;
                 if (this.current_question == 0) {
-                    this.conversation.push(this.questions[0]);
+                    this.pushBot(0);
                 }
             },
 
@@ -55,16 +56,27 @@
                 this.conversation = [];
             },
 
+            pushBot(index) {
+                this.conversation.push(['bot', this.questions[index]]);
+            },
+
+            pushUser(reply) {
+                this.conversation.push(['user', reply]);
+            },
+
             updateChat(event) {
                 const reply = event.target.elements.message.value;
+                event.target.elements.message.value = '';
 
                 if (this.current_question == 0) {
                     this.name = reply;
                 }
 
+                this.pushUser(reply);
+
                 this.current_question++;
 
-                this.conversation.push(this.questions[this.current_question]);
+                this.pushBot(this.current_question);
             },
         }
     }
