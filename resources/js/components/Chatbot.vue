@@ -1,34 +1,36 @@
 <template>
-    <div class="inner">
-        <div v-if="is_started">
-            <div class="messages">
-                <div v-for="reply in conversation">
-                    <div v-if="reply[0] == 'bot'" class="bot">
-                        <p v-html="reply[1]"></p>
-                    </div>
+    <div class="smartphone">
+        <div id="messages">
+            <div v-for="reply in conversation">
+                <div v-if="reply[0] == 'bot'" class="message bot">
+                    <p v-html="reply[1]"></p>
+                </div>
 
-                    <div v-if="reply[0] == 'user'" class="user">
-                        <p>{{ reply[1] }}</p>
-                    </div>
+                <div v-if="reply[0] == 'user'" class="message user">
+                    <p>{{ reply[1] }}</p>
                 </div>
             </div>
-
-            <form @submit.prevent="updateChat">
-                <input type="text" name="message" required>
-                <button type="submit">Send</button>
-            </form>
         </div>
 
-        <button @click="startChat()" v-if="!is_started">Start Chat</button>
-        <button @click="stopChat()" v-if="is_started">Reset Chat</button>
+        <form @submit.prevent="updateChat">
+            <input type="text" name="message" placeholder="Type here..." required>
+            <button type="submit">Send</button>
+        </form>
+
+        <div class="button" @click="resetChat"></div>
     </div>
 </template>
 
 <script>
     export default {
+        mounted() {
+            if (this.current_question == 0) {
+                this.pushBot(0);
+            }
+        },
+
         data() {
             return {
-                is_started: false,
                 name: null,
                 current_question: 0,
                 conversation: [],
@@ -55,15 +57,7 @@
         },
 
         methods: {
-            startChat() {
-                this.is_started = true;
-                if (this.current_question == 0) {
-                    this.pushBot(0);
-                }
-            },
-
-            stopChat() {
-                this.is_started = false;
+            resetChat() {
                 this.name = null;
                 this.current_question = 0;
                 this.conversation = [];
@@ -72,15 +66,17 @@
                     "location": null,
                     "category": null
                 };
-                this.startChat();
+                this.pushBot(0);
             },
 
             pushBot(index, reply = null) {
-                if (reply) {
-                    this.conversation.push(['bot', reply]);
-                } else {
-                    this.conversation.push(['bot', this.questions[index]]);
-                }
+                setTimeout(() => {
+                    if (reply) {
+                        this.conversation.push(['bot', reply]);
+                    } else {
+                        this.conversation.push(['bot', this.questions[index]]);
+                    }
+                }, 100);
             },
 
             pushUser(reply) {
@@ -104,6 +100,8 @@
                 this.pushUser(reply);
 
                 if (this.checkReply(reply) == 'end') {
+                    this.current_question++;
+
                     this.checkDestinations();
                 } else if (this.checkReply(reply)) {
                     this.current_question++;
@@ -112,6 +110,16 @@
                 } else {
                     this.pushBot(null, "Sorry, I did not quite understand that.");
                 }
+
+                this.scrollBottom();
+            },
+
+            scrollBottom() {
+                const messages = document.getElementById('messages');
+
+                setTimeout(() => {
+                    messages.scroll({ top: messages.scrollHeight, behavior: "smooth"})
+                }, this.questions[this.current_question] ? 100 : 300);
             },
 
             checkReply(reply) {
@@ -183,7 +191,7 @@
                     if (suggested_destinations.length) {
                         this.pushBot(null, `That\'s everything! Here is ${suggested_destinations.length} destinations we found that we think you might like:`);
                     } else {
-                        this.pushBot(null, "Unfortunately we couldn't find a suitable destination. Please try narrowing your results.");
+                        this.pushBot(null, "Unfortunately we couldn't find a suitable destination. Please try narrowing your search terms. <br> Click the button on the phone to reset.");
                     }
 
                     suggested_destinations.forEach(destination => {

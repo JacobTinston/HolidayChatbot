@@ -5399,13 +5399,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
 //
 //
 //
-//
-//
-//
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
+  mounted: function mounted() {
+    if (this.current_question == 0) {
+      this.pushBot(0);
+    }
+  },
   data: function data() {
     return {
-      is_started: false,
       name: null,
       current_question: 0,
       conversation: [],
@@ -5425,15 +5426,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     }
   },
   methods: {
-    startChat: function startChat() {
-      this.is_started = true;
-
-      if (this.current_question == 0) {
-        this.pushBot(0);
-      }
-    },
-    stopChat: function stopChat() {
-      this.is_started = false;
+    resetChat: function resetChat() {
       this.name = null;
       this.current_question = 0;
       this.conversation = [];
@@ -5442,16 +5435,19 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
         "location": null,
         "category": null
       };
-      this.startChat();
+      this.pushBot(0);
     },
     pushBot: function pushBot(index) {
-      var reply = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      var _this = this;
 
-      if (reply) {
-        this.conversation.push(['bot', reply]);
-      } else {
-        this.conversation.push(['bot', this.questions[index]]);
-      }
+      var reply = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+      setTimeout(function () {
+        if (reply) {
+          _this.conversation.push(['bot', reply]);
+        } else {
+          _this.conversation.push(['bot', _this.questions[index]]);
+        }
+      }, 100);
     },
     pushUser: function pushUser(reply) {
       this.conversation.push(['user', reply]);
@@ -5471,6 +5467,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       this.pushUser(reply);
 
       if (this.checkReply(reply) == 'end') {
+        this.current_question++;
         this.checkDestinations();
       } else if (this.checkReply(reply)) {
         this.current_question++;
@@ -5478,6 +5475,17 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       } else {
         this.pushBot(null, "Sorry, I did not quite understand that.");
       }
+
+      this.scrollBottom();
+    },
+    scrollBottom: function scrollBottom() {
+      var messages = document.getElementById('messages');
+      setTimeout(function () {
+        messages.scroll({
+          top: messages.scrollHeight,
+          behavior: "smooth"
+        });
+      }, this.questions[this.current_question] ? 100 : 300);
     },
     checkReply: function checkReply(reply) {
       var is_expected = true;
@@ -5552,7 +5560,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       return is_expected;
     },
     checkDestinations: function checkDestinations() {
-      var _this = this;
+      var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
         var timeout, suggested_destinations;
@@ -5560,14 +5568,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
-                if (!_this.preferred) {
+                if (!_this2.preferred) {
                   _context.next = 7;
                   break;
                 }
 
                 timeout = 500;
                 _context.next = 4;
-                return axios.post("/api/show", _this.preferred).then(function (response) {
+                return axios.post("/api/show", _this2.preferred).then(function (response) {
                   return response.data;
                 });
 
@@ -5575,13 +5583,13 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                 suggested_destinations = _context.sent;
 
                 if (suggested_destinations.length) {
-                  _this.pushBot(null, "That's everything! Here is ".concat(suggested_destinations.length, " destinations we found that we think you might like:"));
+                  _this2.pushBot(null, "That's everything! Here is ".concat(suggested_destinations.length, " destinations we found that we think you might like:"));
                 } else {
-                  _this.pushBot(null, "Unfortunately we couldn't find a suitable destination. Please try narrowing your results.");
+                  _this2.pushBot(null, "Unfortunately we couldn't find a suitable destination. Please try narrowing your search terms. <br> Click the button on the phone to reset.");
                 }
 
                 suggested_destinations.forEach(function (destination) {
-                  _this.pushBot(null, "\n                        Country: ".concat(destination["Country"], " <br>\n                        City: ").concat(destination["City"], " <br>\n                        Hotel Name: ").concat(destination["HotelName"], " <br>\n                        Price/Night: \xA3").concat(destination["PricePerPerNight"], " <br>\n                        <a href=\"/\">Book Here Now!</a>\n                    "));
+                  _this2.pushBot(null, "\n                        Country: ".concat(destination["Country"], " <br>\n                        City: ").concat(destination["City"], " <br>\n                        Hotel Name: ").concat(destination["HotelName"], " <br>\n                        Price/Night: \xA3").concat(destination["PricePerPerNight"], " <br>\n                        <a href=\"/\">Book Here Now!</a>\n                    "));
                 });
 
               case 7:
@@ -5620,7 +5628,6 @@ window.Vue = (__webpack_require__(/*! vue */ "./node_modules/vue/dist/vue.esm.js
  */
 // const files = require.context('./', true, /\.vue$/i)
 // files.keys().map(key => Vue.component(key.split('/').pop().split('.')[0], files(key).default))
-// Vue.component('example-component', require('./components/ExampleComponent.vue').default);
 
 Vue.component('chatbot', (__webpack_require__(/*! ./components/Chatbot.vue */ "./resources/js/components/Chatbot.vue")["default"]));
 /**
@@ -28205,78 +28212,53 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  return _c("div", { staticClass: "inner" }, [
-    _vm.is_started
-      ? _c("div", [
-          _c(
-            "div",
-            { staticClass: "messages" },
-            _vm._l(_vm.conversation, function (reply) {
-              return _c("div", [
-                reply[0] == "bot"
-                  ? _c("div", { staticClass: "bot" }, [
-                      _c("p", { domProps: { innerHTML: _vm._s(reply[1]) } }),
-                    ])
-                  : _vm._e(),
-                _vm._v(" "),
-                reply[0] == "user"
-                  ? _c("div", { staticClass: "user" }, [
-                      _c("p", [_vm._v(_vm._s(reply[1]))]),
-                    ])
-                  : _vm._e(),
+  return _c("div", { staticClass: "smartphone" }, [
+    _c(
+      "div",
+      { attrs: { id: "messages" } },
+      _vm._l(_vm.conversation, function (reply) {
+        return _c("div", [
+          reply[0] == "bot"
+            ? _c("div", { staticClass: "message bot" }, [
+                _c("p", { domProps: { innerHTML: _vm._s(reply[1]) } }),
               ])
-            }),
-            0
-          ),
+            : _vm._e(),
           _vm._v(" "),
-          _c(
-            "form",
-            {
-              on: {
-                submit: function ($event) {
-                  $event.preventDefault()
-                  return _vm.updateChat.apply(null, arguments)
-                },
-              },
-            },
-            [
-              _c("input", {
-                attrs: { type: "text", name: "message", required: "" },
-              }),
-              _vm._v(" "),
-              _c("button", { attrs: { type: "submit" } }, [_vm._v("Send")]),
-            ]
-          ),
+          reply[0] == "user"
+            ? _c("div", { staticClass: "message user" }, [
+                _c("p", [_vm._v(_vm._s(reply[1]))]),
+              ])
+            : _vm._e(),
         ])
-      : _vm._e(),
+      }),
+      0
+    ),
     _vm._v(" "),
-    !_vm.is_started
-      ? _c(
-          "button",
-          {
-            on: {
-              click: function ($event) {
-                return _vm.startChat()
-              },
-            },
+    _c(
+      "form",
+      {
+        on: {
+          submit: function ($event) {
+            $event.preventDefault()
+            return _vm.updateChat.apply(null, arguments)
           },
-          [_vm._v("Start Chat")]
-        )
-      : _vm._e(),
+        },
+      },
+      [
+        _c("input", {
+          attrs: {
+            type: "text",
+            name: "message",
+            placeholder: "Type here...",
+            required: "",
+          },
+        }),
+        _vm._v(" "),
+        _c("button", { attrs: { type: "submit" } }, [_vm._v("Send")]),
+      ]
+    ),
     _vm._v(" "),
-    _vm.is_started
-      ? _c(
-          "button",
-          {
-            on: {
-              click: function ($event) {
-                return _vm.stopChat()
-              },
-            },
-          },
-          [_vm._v("Reset Chat")]
-        )
-      : _vm._e(),
+    _c("div", { staticClass: "button", on: { click: _vm.resetChat } }),
   ])
 }
 var staticRenderFns = []

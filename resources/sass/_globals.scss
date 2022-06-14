@@ -1,0 +1,110 @@
+@use 'sass:math';
+
+@import './fonts';
+
+@mixin flex($align-items: none, $justify-content: none, $flex-direction: none, $flex-wrap: none) {
+    display: flex;
+    align-items: $align-items;
+    justify-content: $justify-content;
+    flex-wrap: $flex-wrap;
+    flex-direction: $flex-direction;
+}
+
+@mixin nunito($font-weight: 400, $font-size: 1rem, $color: $black) {
+    font: {
+        family: 'Nunito', sans-serif;
+        weight: $font-weight;
+        size: $font-size;
+    }
+    color: $color;
+}
+
+$small: "only screen and (min-width: 576px)";
+$medium: "only screen and (min-width: 768px)";
+$large: "only screen and (min-width: 992px)";
+$x-large: "only screen and (min-width: 1200px)";
+$xx-large: "only screen and (min-width: 1550px)";
+
+$mobNavHeight: 75px;
+$tabletNavHeight: 90px;
+$desktopNavHeight: 100px;
+
+$black: #000;
+$white: #eee;
+$primary: #6253e4;
+$secondary: #cec9ec;
+
+* {
+    // border: 1px solid red; // for testing
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    @include nunito();
+
+    ::selection {
+        color: default;
+        background-color: default;
+    }
+
+    body {
+        @include flex(0, space-between, column);
+        min-height: 100vh;
+        background-color: $white;
+
+        &.no-scroll {
+            overflow-y: hidden;
+        }
+
+        /* ACCORDION */
+
+        .accordion {
+            .panel {
+                display: none;
+            }
+
+            &.active {
+                .panel {
+                    display: block
+                }
+            }
+        }
+
+        /* FORM */
+
+        form {
+            input {
+                height: 50px;
+                outline: none;
+                padding: 10px 15px;
+                border-radius: 0;
+                border: 1px solid $black;
+            }
+
+            button {
+                border: 1px solid $black;
+                background-color: #fff;
+
+                &:hover {
+                    background-color: $white;
+                }
+            }
+        }
+
+        /* BUTTONS */
+
+        button, .button {
+            cursor: pointer;
+        }
+    }
+
+    picture {
+        font-size: 0;
+        line-height: 0;
+        height: fit-content;
+        width: fit-content;
+
+        img {
+            display: block;
+        }
+    }
+}
