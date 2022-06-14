@@ -5400,12 +5400,18 @@ __webpack_require__.r(__webpack_exports__);
       is_started: false,
       name: null,
       current_question: 0,
-      conversation: []
+      conversation: [],
+      preferred: {
+        "temp": null,
+        "location": null
+      }
     };
   },
   computed: {
     questions: function questions() {
-      return ["Hi There! What\'s your name?", "Hello ".concat(this.name, "!")];
+      return ["Hi There! What\'s your name?", // 0
+      "Hello ".concat(this.name, "! Are you looking for a Hot, Mild or Cold destination?"), // 1
+      "Nice choice! ".concat(this.preferred["temp"], " is my favourite too! What about location?\n                City, Sea, or Mountain?"), "Great. So are you planning on being lazy or active whilst away?"];
     }
   },
   methods: {
@@ -5421,15 +5427,29 @@ __webpack_require__.r(__webpack_exports__);
       this.name = null;
       this.current_question = 0;
       this.conversation = [];
+      this.preferred = {
+        "temp": null,
+        "location": null
+      };
     },
     pushBot: function pushBot(index) {
-      this.conversation.push(['bot', this.questions[index]]);
+      var reply = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
+
+      if (reply) {
+        this.conversation.push(['bot', reply]);
+      } else {
+        this.conversation.push(['bot', this.questions[index]]);
+      }
     },
     pushUser: function pushUser(reply) {
       this.conversation.push(['user', reply]);
     },
+    sanitise: function sanitise(string) {
+      string = string.trim();
+      return string;
+    },
     updateChat: function updateChat(event) {
-      var reply = event.target.elements.message.value;
+      var reply = this.sanitise(event.target.elements.message.value);
       event.target.elements.message.value = '';
 
       if (this.current_question == 0) {
@@ -5437,8 +5457,67 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       this.pushUser(reply);
-      this.current_question++;
-      this.pushBot(this.current_question);
+
+      if (this.checkReply(reply)) {
+        this.current_question++;
+        this.pushBot(this.current_question);
+      } else {
+        this.pushBot(null, "Sorry, I did not quite understand that.");
+      }
+    },
+    checkReply: function checkReply(reply) {
+      var is_expected = true;
+      var lower_reply = reply.toLowerCase();
+
+      switch (this.current_question) {
+        case 0:
+          break;
+
+        case 1:
+          switch (lower_reply) {
+            case 'hot':
+              this.preferred["temp"] = 'Hot';
+              break;
+
+            case 'mild':
+              this.preferred["temp"] = 'Mild';
+              break;
+
+            case 'cold':
+              this.preferred["temp"] = 'Cold';
+              break;
+
+            default:
+              is_expected = false;
+          }
+
+          break;
+
+        case 2:
+          switch (lower_reply) {
+            case 'city':
+              this.preferred["location"] = 'city';
+              break;
+
+            case 'sea':
+              this.preferred["location"] = 'sea';
+              break;
+
+            case 'mountain':
+              this.preferred["location"] = 'mountain';
+              break;
+
+            default:
+              is_expected = false;
+          }
+
+          break;
+
+        default:
+          is_expected = false;
+      }
+
+      return is_expected;
     }
   }
 });
@@ -28063,13 +28142,13 @@ var render = function () {
               return _c("div", [
                 reply[0] == "bot"
                   ? _c("div", { staticClass: "bot" }, [
-                      _c("p", { domProps: { innerHTML: _vm._s(reply[1]) } }),
+                      _c("p", [_vm._v(_vm._s(reply[1]))]),
                     ])
                   : _vm._e(),
                 _vm._v(" "),
                 reply[0] == "user"
                   ? _c("div", { staticClass: "user" }, [
-                      _c("p", { domProps: { innerHTML: _vm._s(reply[1]) } }),
+                      _c("p", [_vm._v(_vm._s(reply[1]))]),
                     ])
                   : _vm._e(),
               ])
