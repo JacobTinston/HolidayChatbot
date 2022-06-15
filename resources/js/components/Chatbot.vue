@@ -32,6 +32,7 @@
         data() {
             return {
                 name: null,
+                conversation_id: '',
                 current_question: 0,
                 conversation: [],
                 preferred: {
@@ -48,8 +49,7 @@
 
                     `Hello ${this.name}! Are you looking for a Hot, Mild or Cold destination?`, // 1
                     
-                    `Nice choice! ${this.preferred["temp"]} is my favourite too! What about location?
-                    City, Sea, or Mountain?`, // 2
+                    `Nice choice! ${this.preferred["temp"]} is my favourite too! What about location? City, Sea, or Mountain?`, // 2
 
                     `Great. So are you planning on being lazy or active whilst away?` //3
                 ];
@@ -59,6 +59,7 @@
         methods: {
             resetChat() {
                 this.name = null;
+                this.conversation_id = null;
                 this.current_question = 0;
                 this.conversation = [];
                 this.preferred = {
@@ -93,17 +94,17 @@
                 const reply = this.sanitise(event.target.elements.message.value);
                 event.target.elements.message.value = '';
 
-                if (this.current_question == 0) {
-                    this.name = reply;
-                }
+                if (this.current_question == 0) this.name = reply;
 
                 this.pushUser(reply);
 
-                if (this.checkReply(reply) == 'end') {
+                const check_reply = this.checkReply(reply);
+
+                if (check_reply == 'end') {
                     this.current_question++;
 
                     this.checkDestinations();
-                } else if (this.checkReply(reply)) {
+                } else if (check_reply) {
                     this.current_question++;
 
                     this.pushBot(this.current_question);
@@ -112,66 +113,34 @@
                 }
 
                 this.scrollBottom();
-            },
-            
-            scrollBottom() {
-                const messages = document.getElementById('messages');
 
-                setTimeout(() => {
-                    messages.scroll({ top: messages.scrollHeight, behavior: "smooth"})
-                }, this.questions[this.current_question] ? 100 : 300);
+                this.storeConversation();
             },
 
             checkReply(reply) {
                 let is_expected = true;
-                const lower_reply = reply.toLowerCase();
+                reply = reply.toLowerCase().split(" ");
 
                 switch (this.current_question) {
                     case 0:
                         break;
                     case 1: 
-                        switch(lower_reply) {
-                            case 'hot':
-                                this.preferred["temp"] = 'Hot';
-                                break;
-                            case 'mild':
-                                this.preferred["temp"] = 'Mild';
-                                break;
-                            case 'cold':
-                                this.preferred["temp"] = 'Cold';
-                                break;
-                            default: 
-                                is_expected = false;
-                        }
+                        if (reply.includes("hot")) this.preferred["temp"] = 'Hot';
+                        else if (reply.includes("mild")) this.preferred["temp"] = 'Mild';
+                        else if (reply.includes("cold")) this.preferred["temp"] = 'Cold';
+                        else is_expected = false;
                         break;
                     case 2: 
-                        switch(lower_reply) {
-                            case 'city':
-                                this.preferred["location"] = 'City';
-                                break;
-                            case 'sea':
-                                this.preferred["location"] = 'Sea';
-                                break;
-                            case 'mountain':
-                                this.preferred["location"] = 'Mountain';
-                                break;
-                            default: 
-                                is_expected = false;
-                        }
+                        if (reply.includes("city")) this.preferred["location"] = 'City';
+                        else if (reply.includes("sea")) this.preferred["location"] = 'Sea';
+                        else if (reply.includes("mountain")) this.preferred["location"] = 'Mountain';
+                        else is_expected = false;
                         break;
                     case 3: 
-                        switch(lower_reply) {
-                            case 'lazy':
-                                is_expected = 'end';
-                                this.preferred["category"] = 'Lazy';
-                                break;
-                            case 'active':
-                                is_expected = 'end';
-                                this.preferred["category"] = 'Active';
-                                break;
-                            default: 
-                                is_expected = false;
-                        }
+                        if (reply.includes("lazy")) this.preferred["category"] = 'Lazy';
+                        else if (reply.includes("active")) this.preferred["category"] = 'Active';
+                        else is_expected = false;
+                        if (is_expected) is_expected = 'end';
                         break;
                     default:
                         is_expected = false;
@@ -182,9 +151,7 @@
 
             async checkDestinations () {
                 if (this.preferred) {
-                    let timeout = 500;
-
-                    let suggested_destinations = await axios.post("/api/show", this.preferred).then(response => {
+                    let suggested_destinations = await axios.post("/api/read", this.preferred).then(response => {
                         return response.data;
                     });
 
@@ -204,6 +171,34 @@
                         `);
                     });
                 }
+            },
+
+            scrollBottom() {
+                const messages = document.getElementById('messages');
+
+                setTimeout(() => {
+                    messages.scroll({ top: messages.scrollHeight, behavior: "smooth"})
+                }, this.questions[this.current_question] ? 100 : 300);
+            },
+
+            storeConversation() {
+                setTimeout(() => {
+                    if (this.current_question == 1 && !this.conversation_id) {
+                        try {
+                            axios.post("/api/create", {"data": this.conversation}).then(response => {
+                                this.conversation_id = response.data;
+                            });;
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    } else {
+                        try {
+                            axios.put("/api/update/" + this.conversation_id, {"data": this.conversation});
+                        } catch (e) {
+                            console.error(e);
+                        }
+                    }
+                }, 300)
             }
         }
     }

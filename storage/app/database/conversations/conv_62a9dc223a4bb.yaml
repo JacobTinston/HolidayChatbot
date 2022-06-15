@@ -1,0 +1,33 @@
+-
+    - bot
+    - 'Hi There! What''s your name?'
+-
+    - user
+    - 'Test Conversation'
+-
+    - bot
+    - 'Hello Test Conversation! Are you looking for a Hot, Mild or Cold destination?'
+-
+    - user
+    - 'Im looking for a hot holiday please'
+-
+    - bot
+    - 'Nice choice! Hot is my favourite too! What about location? City, Sea, or Mountain?'
+-
+    - user
+    - 'Sea please'
+-
+    - bot
+    - 'Great. So are you planning on being lazy or active whilst away?'
+-
+    - user
+    - 'I will be being very lazy'
+-
+    - bot
+    - 'That''s everything! Here is 2 destinations we found that we think you might like:'
+-
+    - bot
+    - "Country: Australia <br>\n                        City: Sydney <br>\n                        Hotel Name: TooHot <br>\n                        Price/Night: £67 <br>\n                        <a href=\"/\">Book Here Now!</a>"
+-
+    - bot
+    - "Country: India <br>\n                        City: Jaipur <br>\n                        Hotel Name: HotTimes <br>\n                        Price/Night: £67 <br>\n                        <a href=\"/\">Book Here Now!</a>"

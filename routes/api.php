@@ -20,4 +20,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::post('/show', [ChatBot::class, 'show']);
+Route::post('/read', [ChatBot::class, 'read']);
+Route::post('/create', [ChatBot::class, 'create']);
+Route::put('/update/{id}', [ChatBot::class, 'update']);

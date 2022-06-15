@@ -5408,6 +5408,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   data: function data() {
     return {
       name: null,
+      conversation_id: '',
       current_question: 0,
       conversation: [],
       preferred: {
@@ -5420,7 +5421,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     questions: function questions() {
       return ["Hi There! What\'s your name?", // 0
       "Hello ".concat(this.name, "! Are you looking for a Hot, Mild or Cold destination?"), // 1
-      "Nice choice! ".concat(this.preferred["temp"], " is my favourite too! What about location?\n                City, Sea, or Mountain?"), // 2
+      "Nice choice! ".concat(this.preferred["temp"], " is my favourite too! What about location? City, Sea, or Mountain?"), // 2
       "Great. So are you planning on being lazy or active whilst away?" //3
       ];
     }
@@ -5428,6 +5429,7 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
   methods: {
     resetChat: function resetChat() {
       this.name = null;
+      this.conversation_id = null;
       this.current_question = 0;
       this.conversation = [];
       this.preferred = {
@@ -5459,17 +5461,14 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
     updateChat: function updateChat(event) {
       var reply = this.sanitise(event.target.elements.message.value);
       event.target.elements.message.value = '';
-
-      if (this.current_question == 0) {
-        this.name = reply;
-      }
-
+      if (this.current_question == 0) this.name = reply;
       this.pushUser(reply);
+      var check_reply = this.checkReply(reply);
 
-      if (this.checkReply(reply) == 'end') {
+      if (check_reply == 'end') {
         this.current_question++;
         this.checkDestinations();
-      } else if (this.checkReply(reply)) {
+      } else if (check_reply) {
         this.current_question++;
         this.pushBot(this.current_question);
       } else {
@@ -5477,80 +5476,27 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       }
 
       this.scrollBottom();
-    },
-    scrollBottom: function scrollBottom() {
-      var messages = document.getElementById('messages');
-      setTimeout(function () {
-        messages.scroll({
-          top: messages.scrollHeight,
-          behavior: "smooth"
-        });
-      }, this.questions[this.current_question] ? 100 : 300);
+      this.storeConversation();
     },
     checkReply: function checkReply(reply) {
       var is_expected = true;
-      var lower_reply = reply.toLowerCase();
+      reply = reply.toLowerCase().split(" ");
 
       switch (this.current_question) {
         case 0:
           break;
 
         case 1:
-          switch (lower_reply) {
-            case 'hot':
-              this.preferred["temp"] = 'Hot';
-              break;
-
-            case 'mild':
-              this.preferred["temp"] = 'Mild';
-              break;
-
-            case 'cold':
-              this.preferred["temp"] = 'Cold';
-              break;
-
-            default:
-              is_expected = false;
-          }
-
+          if (reply.includes("hot")) this.preferred["temp"] = 'Hot';else if (reply.includes("mild")) this.preferred["temp"] = 'Mild';else if (reply.includes("cold")) this.preferred["temp"] = 'Cold';else is_expected = false;
           break;
 
         case 2:
-          switch (lower_reply) {
-            case 'city':
-              this.preferred["location"] = 'City';
-              break;
-
-            case 'sea':
-              this.preferred["location"] = 'Sea';
-              break;
-
-            case 'mountain':
-              this.preferred["location"] = 'Mountain';
-              break;
-
-            default:
-              is_expected = false;
-          }
-
+          if (reply.includes("city")) this.preferred["location"] = 'City';else if (reply.includes("sea")) this.preferred["location"] = 'Sea';else if (reply.includes("mountain")) this.preferred["location"] = 'Mountain';else is_expected = false;
           break;
 
         case 3:
-          switch (lower_reply) {
-            case 'lazy':
-              is_expected = 'end';
-              this.preferred["category"] = 'Lazy';
-              break;
-
-            case 'active':
-              is_expected = 'end';
-              this.preferred["category"] = 'Active';
-              break;
-
-            default:
-              is_expected = false;
-          }
-
+          if (reply.includes("lazy")) this.preferred["category"] = 'Lazy';else if (reply.includes("active")) this.preferred["category"] = 'Active';else is_expected = false;
+          if (is_expected) is_expected = 'end';
           break;
 
         default:
@@ -5563,23 +5509,22 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
       var _this2 = this;
 
       return _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee() {
-        var timeout, suggested_destinations;
+        var suggested_destinations;
         return _regeneratorRuntime().wrap(function _callee$(_context) {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
                 if (!_this2.preferred) {
-                  _context.next = 7;
+                  _context.next = 6;
                   break;
                 }
 
-                timeout = 500;
-                _context.next = 4;
-                return axios.post("/api/show", _this2.preferred).then(function (response) {
+                _context.next = 3;
+                return axios.post("/api/read", _this2.preferred).then(function (response) {
                   return response.data;
                 });
 
-              case 4:
+              case 3:
                 suggested_destinations = _context.sent;
 
                 if (suggested_destinations.length) {
@@ -5592,13 +5537,48 @@ function _asyncToGenerator(fn) { return function () { var self = this, args = ar
                   _this2.pushBot(null, "\n                        Country: ".concat(destination["Country"], " <br>\n                        City: ").concat(destination["City"], " <br>\n                        Hotel Name: ").concat(destination["HotelName"], " <br>\n                        Price/Night: \xA3").concat(destination["PricePerPerNight"], " <br>\n                        <a href=\"/\">Book Here Now!</a>\n                    "));
                 });
 
-              case 7:
+              case 6:
               case "end":
                 return _context.stop();
             }
           }
         }, _callee);
       }))();
+    },
+    scrollBottom: function scrollBottom() {
+      var messages = document.getElementById('messages');
+      setTimeout(function () {
+        messages.scroll({
+          top: messages.scrollHeight,
+          behavior: "smooth"
+        });
+      }, this.questions[this.current_question] ? 100 : 300);
+    },
+    storeConversation: function storeConversation() {
+      var _this3 = this;
+
+      setTimeout(function () {
+        if (_this3.current_question == 1 && !_this3.conversation_id) {
+          try {
+            axios.post("/api/create", {
+              "data": _this3.conversation
+            }).then(function (response) {
+              _this3.conversation_id = response.data;
+            });
+            ;
+          } catch (e) {
+            console.error(e);
+          }
+        } else {
+          try {
+            axios.put("/api/update/" + _this3.conversation_id, {
+              "data": _this3.conversation
+            });
+          } catch (e) {
+            console.error(e);
+          }
+        }
+      }, 300);
     }
   }
 });

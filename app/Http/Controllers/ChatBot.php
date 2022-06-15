@@ -10,33 +10,30 @@ use Session;
 class ChatBot extends Controller
 {
     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function create(Request $request)
     {
-        //
+        $conversation_id = uniqid('conv_', false);
+        $conversation = $request->data;
+
+        $yaml = Yaml::dump($conversation);
+        Storage::disk('local')->put('database/conversations/'.$conversation_id.'.yaml', $yaml);
+
+        return $conversation_id;
+            
     }
 
     /**
-     * Display the specified resource.
+     * Display the specified resources.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function read(Request $request)
     {
         $holiday_data = Yaml::parse(Storage::disk('local')->get('database/holiday-data.yaml'));
         $suggested_destinations = [];
@@ -55,17 +52,6 @@ class ChatBot extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
-    {
-        //
-    }
-
-    /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -74,7 +60,16 @@ class ChatBot extends Controller
      */
     public function update(Request $request, $id = null)
     {
-        //
+        $conversation = $request->data;
+
+        try {
+            $yaml = Yaml::dump($conversation);
+            Storage::disk('local')->put('database/conversations/'.$id.'.yaml', $yaml);
+        } catch(err) {
+            return err;
+        }
+
+        return $conversation;
     }
 
     /**
@@ -83,7 +78,7 @@ class ChatBot extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function delete($id)
     {
         //
     }
