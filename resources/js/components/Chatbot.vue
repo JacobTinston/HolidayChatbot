@@ -47,7 +47,7 @@
                     "Hi There! What\'s your name?", // 0
 
                     `Hello ${this.name}! Are you looking for a Hot, Mild or Cold destination?`, // 1
-
+                    
                     `Nice choice! ${this.preferred["temp"]} is my favourite too! What about location?
                     City, Sea, or Mountain?`, // 2
 
@@ -113,7 +113,7 @@
 
                 this.scrollBottom();
             },
-
+            
             scrollBottom() {
                 const messages = document.getElementById('messages');
 
@@ -193,7 +193,7 @@
                     } else {
                         this.pushBot(null, "Unfortunately we couldn't find a suitable destination. Please try narrowing your search terms. <br> Click the button on the phone to reset.");
                     }
-
+                    
                     suggested_destinations.forEach(destination => {
                         this.pushBot(null, `
                             Country: ${destination["Country"]} <br>
