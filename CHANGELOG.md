@@ -1,7 +1,7 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-## v2.0 2022-05-15
+## v3.0 2022-05-15
  
 ### Added
 - Saves/Updates Conversations
