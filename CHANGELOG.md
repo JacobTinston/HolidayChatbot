@@ -6,6 +6,7 @@ All notable changes to this project will be documented in this file.
 ### Added
 - Generates conversation ID that is used to identify conversation
 - Stores a copy of the conversation as a flat file in storage directory with the name as the conversation ID.
+- Created User Guide
  
 ### Changed
 - Broaden accepted criteria by checking for keywords in full sentences.
