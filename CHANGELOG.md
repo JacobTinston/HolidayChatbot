@@ -8,7 +8,7 @@ All notable changes to this project will be documented in this file.
 - Stores a copy of the conversation as a flat file in storage directory with the name as the conversation ID.
  
 ### Changed
-- Broaden accepted criteria by checking for ketwords in full sentences.
+- Broaden accepted criteria by checking for keywords in full sentences.
  
 ### Fixed
 - Downgraded to use PHP 7.4 - because the server runs on 7.4, not 8.0.10.
