@@ -80,6 +80,10 @@ body.master {
 
                     &.bot {
                         background-color: $primary;
+                        
+                        p {
+                            color: $white;
+                        }
                     }
 
                     &.user {

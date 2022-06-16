@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-        <meta name="description" content="">
+        <meta name="description" content="First Holiday chatbot that helps people find holidays they wouldn't have otherwise found.">
         <meta name="author" content="Jacob Tinston">
         <link rel="icon" href="{{ asset('favicon.png') }}">
         <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -16,7 +16,7 @@
         <header>
             <nav class="inner">
                 <a class="logo" href="/">
-                    <img src="{{ asset('assets/logo.png') }}" alt="First Holiday Logo">
+                    <img src="{{ asset('assets/logo.png') }}" height="50px" width="207px" alt="First Holiday Logo">
                 </a>
 
                 <ul class="nav-items">
