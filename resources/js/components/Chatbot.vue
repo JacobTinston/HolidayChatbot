@@ -24,9 +24,7 @@
 <script>
     export default {
         mounted() {
-            if (this.current_question == 0) {
-                this.pushBot(0);
-            }
+            if (this.current_question == 0) this.pushBot(0);
         },
 
         data() {
@@ -38,6 +36,7 @@
                 preferred: {
                     "temp": null,
                     "location": null,
+                    "category": null
                 }
             };
         },
@@ -85,9 +84,7 @@
             },
 
             sanitise(string) {
-                string = string.replace(/[^a-z0-9áéíóúñü \,_-]/gim,"").trim();
-
-                return string;
+                return string.replace(/[^a-z0-9áéíóúñü \,_-]/gim,"").trim();
             },
 
             updateChat(event) {
@@ -102,18 +99,15 @@
 
                 if (check_reply == 'end') {
                     this.current_question++;
-
                     this.checkDestinations();
                 } else if (check_reply) {
                     this.current_question++;
-
                     this.pushBot(this.current_question);
                 } else {
                     this.pushBot(null, "Sorry, I did not quite understand that.");
                 }
 
                 this.scrollBottom();
-
                 this.storeConversation();
             },
 
@@ -184,19 +178,11 @@
             storeConversation() {
                 setTimeout(() => {
                     if (this.current_question == 1 && !this.conversation_id) {
-                        try {
-                            axios.post("/api/create", {"data": this.conversation}).then(response => {
-                                this.conversation_id = response.data;
-                            });;
-                        } catch (e) {
-                            console.error(e);
-                        }
+                        axios.post("/api/create", {"data": this.conversation}).then(response => {
+                            this.conversation_id = response.data;
+                        });
                     } else {
-                        try {
-                            axios.put("/api/update/" + this.conversation_id, {"data": this.conversation});
-                        } catch (e) {
-                            console.error(e);
-                        }
+                        axios.put("/api/update/" + this.conversation_id, {"data": this.conversation});
                     }
                 }, 300)
             }
