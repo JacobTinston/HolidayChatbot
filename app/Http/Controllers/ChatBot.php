@@ -44,8 +44,9 @@ class ChatBot extends Controller
             $location = strtolower($request->location);
             $category = strtolower($request->category);
 
-            if ($destination["TempRating"] == $temp_rating && $destination["Location"] == $location && $destination["Category"] == $category)
+            if ($destination["TempRating"] == $temp_rating && $destination["Location"] == $location && $destination["Category"] == $category) {
                 array_push($suggested_destinations, $destination);
+            }
         }
 
         return $suggested_destinations;
@@ -62,12 +63,8 @@ class ChatBot extends Controller
     {
         $conversation = $request->data;
 
-        try {
-            $yaml = Yaml::dump($conversation);
-            Storage::disk('local')->put('database/conversations/'.$id.'.yaml', $yaml);
-        } catch(err) {
-            return err;
-        }
+        $yaml = Yaml::dump($conversation);
+        Storage::disk('local')->put('database/conversations/'.$id.'.yaml', $yaml);
 
         return $conversation;
     }
